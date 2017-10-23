@@ -46,10 +46,10 @@ namespace {{apiPackage}}
         /// Initializes a new instance of the <see cref="{{classname}}"/> class.
         /// </summary>
         /// <returns></returns>
-        //public {{classname}}(String basePath)
-        //{
-        //    this.ApiClient = new ApiClient(basePath);
-        //}
+        public {{classname}}(String basePath)
+        {
+            this.ApiClient = new ApiClient(basePath);
+        }
     
         /// <summary>
         /// Sets the base path of the API client.
@@ -76,6 +76,12 @@ namespace {{apiPackage}}
         /// </summary>
         /// <value>An instance of the ApiClient</value>
         public ApiClient ApiClient {get; set;}
+
+        /// <summary>
+	    /// Returns the headers from the last response made through this class
+	    /// Used when caller needs to be aware of header values sent from the server
+	    /// </summary>
+		public IEnumerable<KeyValuePair<String, IEnumerable<String>>> LastResponseHeaders { get; private set; }
     
         {{#operation}}
         /// <summary>
@@ -117,6 +123,8 @@ namespace {{apiPackage}}
             //IRestResponse response = (IRestResponse) ApiClient.CallApi(path, Method.{{httpMethod}}, queryParams, postBody, headerParams, formParams, fileParams, authSettings);
             HttpResponseMessage httpResponseMessage = await ApiClient.CallApi(path, "{{httpMethod}}", queryParams, postBody, headerParams, authSettings);
     
+            LastResponseHeaders = httpResponseMessage.Headers;
+
             String bodyContent = await httpResponseMessage.Content.ReadAsStringAsync();
             if (((int)httpResponseMessage.StatusCode) >= 400)
                 throw new ApiException ((int)httpResponseMessage.StatusCode, "Error calling {{nickname}}: " + bodyContent, bodyContent);
